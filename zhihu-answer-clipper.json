@@ -1,78 +1,78 @@
 {
-	"schemaVersion": "0.1.0",
-	"name": "Zhihu Answer",
-	"behavior": "create",
-	"noteContentFormat": "{% set question = selector:.QuestionHeader-title|first ?? title|replace:\" - 知乎\":\"\" %}\n{% set answer_author = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link|last ?? schema:author.name ?? author %}\n{% set author_url = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link?href|last %}\n{% set published_at = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"dateCreated\"]?content ?? published %}\n{% set modified_at = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"dateModified\"]?content ?? published_at %}\n{% set upvotes = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] [itemprop=\"upvoteCount\"]?content %}\n{% set comments = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"commentCount\"]?content %}\n# {{question}}\n\n> [!info] 知乎回答\n> 作者: {% if author_url %}[{{answer_author}}](https:{{author_url}}){% else %}{{answer_author}}{% endif %}\n> 原文: [{{url}}]({{url}})\n> 发布时间: {{published_at|date:\"YYYY-MM-DD HH:mm\"}}\n> 更新时间: {{modified_at|date:\"YYYY-MM-DD HH:mm\"}}\n{% if upvotes or comments %}> 赞同: {{upvotes ?? \"0\"}} | 评论: {{comments ?? \"0\"}}{% endif %}\n\n## 回答正文\n\n{{selectorHtml:.AnswerItem[itemprop=\"mainEntityOfPage\"] .RichContent-inner|markdown}}\n\n{% if highlights %}\n## 高亮\n\n{{highlights|fragment_link:\"回到原文\"|join:\"\\n\\n\"}}\n{% endif %}\n",
-	"properties": [
-		{
-			"name": "title",
-			"value": "{{selector:.QuestionHeader-title|first ?? title|replace:\" - 知乎\":\"\"}}",
-			"type": "text"
-		},
-		{
-			"name": "author",
-			"value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link|last ?? schema:author.name ?? author}}",
-			"type": "text"
-		},
-		{
-			"name": "author_url",
-			"value": "https:{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link?href|last}}",
-			"type": "text"
-		},
-		{
-			"name": "source",
-			"value": "{{url}}",
-			"type": "text"
-		},
-		{
-			"name": "site",
-			"value": "Zhihu",
-			"type": "text"
-		},
-		{
-			"name": "published",
-			"value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"dateCreated\"]?content|date:\"YYYY-MM-DD\"}}",
-			"type": "date"
-		},
-		{
-			"name": "updated",
-			"value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"dateModified\"]?content|date:\"YYYY-MM-DD\"}}",
-			"type": "date"
-		},
-		{
-			"name": "clipped",
-			"value": "{{date|date:\"YYYY-MM-DD\"}}",
-			"type": "date"
-		},
-		{
-			"name": "upvotes",
-			"value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] [itemprop=\"upvoteCount\"]?content}}",
-			"type": "text"
-		},
-		{
-			"name": "comments",
-			"value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"commentCount\"]?content}}",
-			"type": "text"
-		},
-		{
-			"name": "keywords",
-			"value": "{{selector:meta[itemprop=\"keywords\"]?content|split:\",\"|join}}",
-			"type": "multitext"
-		},
-		{
-			"name": "description",
-			"value": "{{description}}",
-			"type": "text"
-		},
-		{
-			"name": "tags",
-			"value": "clippings, zhihu, qa",
-			"type": "multitext"
-		}
-	],
-	"triggers": [
-		"/^https:\\/\\/www\\.zhihu\\.com\\/question\\/\\d+\\/answer\\/\\d+\\/?(?:\\?.*)?$/"
-	],
-	"noteNameFormat": "{{selector:.QuestionHeader-title|first|safe_name}} - {{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link|last|safe_name}}",
-	"path": "Clippings/Zhihu"
+  "schemaVersion": "0.1.0",
+  "name": "Zhihu Answer",
+  "behavior": "create",
+  "noteContentFormat": "{% set question = selector:.QuestionHeader-title|first ?? title|replace:\" - 知乎\":\"\" %}\n{% set answer_author = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link|last ?? schema:author.name ?? author %}\n{% set author_url = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link?href|last %}\n{% set published_meta = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"dateCreated\"]?content %}\n{% set modified_meta = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"dateModified\"]?content ?? published_meta %}\n{% set published_text = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .ContentItem-time a?aria-label|first ?? selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .ContentItem-time a?data-tooltip|first ?? published_meta %}\n{% set modified_text = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .ContentItem-time a|first ?? modified_meta %}\n{% set upvotes = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] [itemprop=\"upvoteCount\"]?content %}\n{% set comments = selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"commentCount\"]?content %}\n{% set answer_markdown = selectorHtml:.AnswerItem[itemprop=\"mainEntityOfPage\"] .RichContent-inner|remove_html:\"svg\"|replace_tags:\"a\":\"span\"|markdown %}\n# {{question}}\n\n> [!info] 知乎回答\n> 作者: {% if author_url %}[{{answer_author}}](https:{{author_url}}){% else %}{{answer_author}}{% endif %}\n> 原文: [{{url}}]({{url}})\n> 发布时间: {{published_text|replace:\"发布于 \":\"\"|replace:\"T\":\" \"|replace:\".000Z\":\" UTC\"}}\n{% if modified_text and modified_text != published_text %}> 更新时间: {{modified_text|replace:\"编辑于 \":\"\"|replace:\"发布于 \":\"\"|replace:\"T\":\" \"|replace:\".000Z\":\" UTC\"}}\n{% endif %}{% if upvotes or comments %}> 赞同: {{upvotes ?? \"0\"}} | 评论: {{comments ?? \"0\"}}\n{% endif %}\n## 回答正文\n\n{{answer_markdown}}\n\n{% if highlights %}\n## 高亮\n\n{{highlights|fragment_link:\"回到原文\"|join:\"\\n\\n\"}}\n{% endif %}\n",
+  "properties": [
+    {
+      "name": "title",
+      "value": "{{selector:.QuestionHeader-title|first ?? title|replace:\" - 知乎\":\"\"}}",
+      "type": "text"
+    },
+    {
+      "name": "author",
+      "value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link|last ?? schema:author.name ?? author}}",
+      "type": "text"
+    },
+    {
+      "name": "author_url",
+      "value": "https:{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link?href|last}}",
+      "type": "text"
+    },
+    {
+      "name": "source",
+      "value": "{{url}}",
+      "type": "text"
+    },
+    {
+      "name": "site",
+      "value": "Zhihu",
+      "type": "text"
+    },
+    {
+      "name": "published",
+      "value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"dateCreated\"]?content|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "updated",
+      "value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"dateModified\"]?content|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "clipped",
+      "value": "{{date|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "upvotes",
+      "value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] [itemprop=\"upvoteCount\"]?content}}",
+      "type": "text"
+    },
+    {
+      "name": "comments",
+      "value": "{{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] meta[itemprop=\"commentCount\"]?content}}",
+      "type": "text"
+    },
+    {
+      "name": "keywords",
+      "value": "{{selector:meta[itemprop=\"keywords\"]?content|replace:\"/\\s+/g\":\" \"|split:\",\"|join}}",
+      "type": "multitext"
+    },
+    {
+      "name": "description",
+      "value": "{{description}}",
+      "type": "text"
+    },
+    {
+      "name": "tags",
+      "value": "clippings, zhihu, qa",
+      "type": "multitext"
+    }
+  ],
+  "triggers": [
+    "/^https:\\/\\/www\\.zhihu\\.com\\/question\\/\\d+\\/answer\\/\\d+\\/?(?:\\?.*)?$/"
+  ],
+  "noteNameFormat": "{{selector:.QuestionHeader-title|first|safe_name}} - {{selector:.AnswerItem[itemprop=\"mainEntityOfPage\"] .AuthorInfo .UserLink-link|last|safe_name}}",
+  "path": "Clippings/Zhihu"
 }

@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "0.1.0",
+  "name": "Zhihu Article",
+  "behavior": "create",
+  "noteContentFormat": "{% set article_title = selector:.Post-Title|first ?? title|replace:\" - 知乎\":\"\" %}\n{% set author_name = selector:.AuthorInfo .UserLink-link|last ?? author %}\n{% set author_url = selector:.AuthorInfo .UserLink-link?href|last %}\n{% set updated_meta = selector:meta[itemprop=\"dateModified\"]?content %}\n{% set time_text = selector:.ContentItem-time|first ?? updated_meta %}\n{% set upvotes = selector:button.VoteButton|first|replace:\"/\\D+/g\":\"\" %}\n{% set comments = selector:meta[itemprop=\"commentCount\"]?content %}\n{% set article_html = selectorHtml:.Post-RichTextContainer|replace_tags:\"a\":\"span\"|remove_html:\"svg\"|replace:\"/<p[^>]*>\\s*<span class=\\\"ztext-math\\\"[^>]*data-tex=\\\"([^\\\"]*?)\\\"[^>]*>(?:(?!<\\\\/p>)[\\\\s\\\\S])*?<\\\\/span><\\\\/span><\\\\/span>\\s*<span class=\\\"ztext-math\\\"[^>]*data-tex=\\\"([^\\\"]*?)\\\"[^>]*>(?:(?!<\\\\/p>)[\\\\s\\\\S])*?<\\\\/span><\\\\/span><\\\\/span>\\s*<\\\\/p>/g\":\"\\n\\n@@DISPLAY@@$1@@ENDDISPLAY@@\\n\\n@@DISPLAY@@$2@@ENDDISPLAY@@\\n\\n\"|replace:\"/<p[^>]*>\\s*<span class=\\\"ztext-math\\\"[^>]*data-tex=\\\"([^\\\"]*?)\\\"[^>]*>(?:(?!<\\\\/p>)[\\\\s\\\\S])*?<\\\\/span><\\\\/span><\\\\/span>\\s*<\\\\/p>/g\":\"\\n\\n@@DISPLAY@@$1@@ENDDISPLAY@@\\n\\n\"|replace:\"/<span class=\\\"ztext-math\\\"[^>]*data-tex=\\\"([^\\\"]*?)\\\"[^>]*>[\\\\s\\\\S]*?<\\\\/span><\\\\/span><\\\\/span>/g\":\"@@INLINE@@$1@@ENDINLINE@@\"|remove_tags:\"span\" %}\n{% set article_markdown = article_html|markdown|replace:\"/@@DISPLAY@@([\\\\s\\\\S]*?)@@ENDDISPLAY@@/g\":\"\\n\\n$$$$\\n$1\\n$$$$\\n\\n\"|replace:\"/@@INLINE@@([\\\\s\\\\S]*?)@@ENDINLINE@@/g\":\"$$$1$$\"|replace:\"&amp;\":\"&\" %}\n# {{article_title}}\n\n> [!info] 知乎文章\n> 作者: {% if author_url %}[{{author_name}}]({{author_url}}){% else %}{{author_name}}{% endif %}\n> 原文: [{{url}}]({{url}})\n> 时间: {{time_text|replace:\"・.*$\":\"\"|replace:\"T\":\" \"|replace:\".000Z\":\" UTC\"}}\n{% if upvotes or comments %}> 赞同: {{upvotes ?? \"0\"}} | 评论: {{comments ?? \"0\"}}\n{% endif %}\n## 正文\n\n{{article_markdown}}\n\n{% if highlights %}\n## 高亮\n\n{{highlights|fragment_link:\"回到原文\"|join:\"\\n\\n\"}}\n{% endif %}\n",
+  "properties": [
+    {
+      "name": "title",
+      "value": "{{selector:.Post-Title|first ?? title|replace:\" - 知乎\":\"\"}}",
+      "type": "text"
+    },
+    {
+      "name": "author",
+      "value": "{{selector:.AuthorInfo .UserLink-link|last ?? author}}",
+      "type": "text"
+    },
+    {
+      "name": "author_url",
+      "value": "{{selector:.AuthorInfo .UserLink-link?href|last}}",
+      "type": "text"
+    },
+    {
+      "name": "source",
+      "value": "{{url}}",
+      "type": "text"
+    },
+    {
+      "name": "site",
+      "value": "Zhihu",
+      "type": "text"
+    },
+    {
+      "name": "published",
+      "value": "{{selector:.ContentItem-time|first|replace:\"/^(编辑于|发布于|发表于)\\s*/\":\"\"|replace:\"/・.*$/\":\"\"|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "updated",
+      "value": "{{selector:meta[itemprop=\"dateModified\"]?content|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "clipped",
+      "value": "{{date|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "upvotes",
+      "value": "{{selector:button.VoteButton|first|replace:\"/\\D+/g\":\"\"}}",
+      "type": "text"
+    },
+    {
+      "name": "comments",
+      "value": "{{selector:meta[itemprop=\"commentCount\"]?content}}",
+      "type": "text"
+    },
+    {
+      "name": "description",
+      "value": "{{description}}",
+      "type": "text"
+    },
+    {
+      "name": "tags",
+      "value": "clippings, zhihu, article",
+      "type": "multitext"
+    }
+  ],
+  "triggers": [
+    "/^https:\\/\\/zhuanlan\\.zhihu\\.com\\/p\\/\\d+\\/?(?:\\?.*)?$/"
+  ],
+  "noteNameFormat": "{{selector:.Post-Title|first|safe_name}} - {{selector:.AuthorInfo .UserLink-link|last|safe_name}}",
+  "path": "Clippings/Zhihu"
+}

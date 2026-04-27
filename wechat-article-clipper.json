@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "0.1.0",
+  "name": "WeChat Article",
+  "behavior": "create",
+  "noteContentFormat": "{% set article_title = selector:#activity-name|first ?? title %}\n{% set author_name = selector:#js_author_name_text|first ?? selector:meta[name=\"author\"]?content %}\n{% set account_name = selector:#js_name|first|replace:\"/^\\s+|\\s+$/g\":\"\" %}\n{% set publish_time = selector:#publish_time|first %}\n{% set ip_loc = selector:#js_ip_wording|first %}\n{% set article_html = selectorHtml:#js_content|remove_html:\"mp-common-profile\"|remove_html:\"mpvoice\"|remove_html:\"mpvideosnap\"|remove_html:\"mp-style-type\"|replace:\"/\\s+src=\\\"data:[^\\\"]*\\\"/g\":\"\"|replace:\"data-src=\\\"\":\"src=\\\"\" %}\n{% set article_markdown = article_html|markdown|replace:\"&amp;\":\"&\" %}\n# {{article_title}}\n\n> [!info] 微信公众号文章\n> 作者: {{author_name}}\n> 公众号: {{account_name}}\n> 原文: [{{url}}]({{url}})\n> 发布时间: {{publish_time}}\n{% if ip_loc %}> 属地: {{ip_loc}}\n{% endif %}\n## 正文\n\n{{article_markdown}}\n\n{% if highlights %}\n## 高亮\n\n{{highlights|fragment_link:\"回到原文\"|join:\"\\n\\n\"}}\n{% endif %}\n",
+  "properties": [
+    {
+      "name": "title",
+      "value": "{{selector:#activity-name|first ?? title}}",
+      "type": "text"
+    },
+    {
+      "name": "author",
+      "value": "{{selector:#js_author_name_text|first ?? selector:meta[name=\"author\"]?content}}",
+      "type": "text"
+    },
+    {
+      "name": "account",
+      "value": "{{selector:#js_name|first|replace:\"/^\\s+|\\s+$/g\":\"\"}}",
+      "type": "text"
+    },
+    {
+      "name": "source",
+      "value": "{{url}}",
+      "type": "text"
+    },
+    {
+      "name": "site",
+      "value": "WeChat",
+      "type": "text"
+    },
+    {
+      "name": "published",
+      "value": "{{selector:#publish_time|first|replace:\"年\":\"-\"|replace:\"月\":\"-\"|replace:\"日\":\"\"|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "ip_location",
+      "value": "{{selector:#js_ip_wording|first}}",
+      "type": "text"
+    },
+    {
+      "name": "clipped",
+      "value": "{{date|date:\"YYYY-MM-DD\"}}",
+      "type": "date"
+    },
+    {
+      "name": "description",
+      "value": "{{description}}",
+      "type": "text"
+    },
+    {
+      "name": "tags",
+      "value": "clippings, wechat, article",
+      "type": "multitext"
+    }
+  ],
+  "triggers": [
+    "/^https:\\/\\/mp\\.weixin\\.qq\\.com\\/s(?:\\/|\\?).*/"
+  ],
+  "noteNameFormat": "{{selector:#activity-name|first|safe_name}} - {{selector:#js_name|first|replace:\"/^\\s+|\\s+$/g\":\"\"|safe_name}}",
+  "path": "Clippings/WeChat"
+}
